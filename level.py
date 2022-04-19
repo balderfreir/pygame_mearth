@@ -1,5 +1,5 @@
 import pygame
-
+from ui import *
 from settings import *
 from tile import Tile
 from player import Player
@@ -23,6 +23,9 @@ class Level:
 
         # sprites setup
         self.create_map()
+
+        # user interface
+        self.ui = UI()
 
     def create_map(self):  # basic level setup
         layouts = {
@@ -51,34 +54,36 @@ class Level:
                         x = col_index * TILESIZE
                         y = row_index * TILESIZE
                         if style == 'boundary':
-                            Tile((x, y), [self.obstacle_sprites], 'invisible') #создаем невидимые границы на карте, невидимве так как не используем self.visible_sprites
+                            Tile((x, y), [self.obstacle_sprites],
+                                 'invisible')  # создаем невидимые границы на карте, невидимве так как не используем self.visible_sprites
                         if style == 'grass':
                             random_grass_image = choice(graphics['grass'])
-                            Tile((x, y), [self.visible_sprites], 'grass', random_grass_image) #создаем траву, но не осязаемую
+                            Tile((x, y), [self.visible_sprites], 'grass',
+                                 random_grass_image)  # создаем траву, но не осязаемую
 
                         if style == 'object':
                             surf = graphics['objects'][int(col)]
                             Tile((x, y), [self.visible_sprites, self.obstacle_sprites], 'object', surf)
 
-        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.create_attack, self.destroy_attack)  # создаем/отображаем игрока
+        self.player = Player((2000, 1430), [self.visible_sprites], self.obstacle_sprites, self.create_attack,
+                             self.destroy_attack)  # создаем/отображаем игрока
 
     def create_attack(self, ):
         self.current_attack = Weapon(self.player, [self.visible_sprites])
-
 
     def destroy_attack(self):
         if self.current_attack:
             self.current_attack.kill()
         self.current_attack = None
 
-
     def run(self):
         # отрисовка и обновление игры
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
+        self.ui.display(self.player)
 
         # debug(self.player.direction)
-        debug(self.player.status)
+        # debug(self.player.status)
 
 
 class YSortCameraGroup(pygame.sprite.Group):
