@@ -21,12 +21,15 @@ class Level:
 
         # attack sprites
         self.current_attack = None
+        self.attack_sprites = pygame.sprite.Group()
+        self.attackable_sprites = pygame.sprite.Group()
 
         # sprites setup
         self.create_map()
 
         # user interface
         self.ui = UI()
+
 
     def create_map(self):  # basic level setup
         layouts = {
@@ -57,11 +60,12 @@ class Level:
                         y = row_index * TILESIZE
                         if style == 'boundary':
                             Tile((x, y), [self.obstacle_sprites],
-                                 'invisible')  # создаем невидимые границы на карте, невидимве так как не используем self.visible_sprites
+                                 'invisible')  # создаем невидимые границы на карте, невидимые так как не используем self.visible_sprites
                         if style == 'grass':
                             random_grass_image = choice(graphics['grass'])
-                            Tile((x, y), [self.visible_sprites], 'grass',
-                                 random_grass_image)  # создаем траву, но не осязаемую
+                            Tile((x, y),
+                                 [self.visible_sprites, self.obstacle_sprites, self.attackable_sprites],
+                                 'grass', random_grass_image)  # создаем траву
 
                         if style == 'object':
                             surf = graphics['objects'][int(col)]
@@ -84,10 +88,10 @@ class Level:
                                     monster_name = 'raccoon'
                                 else:
                                     monster_name = 'squid'
-                                Enemy(monster_name, (x, y), [self.visible_sprites],self.obstacle_sprites)
+                                Enemy(monster_name, (x, y), [self.visible_sprites, self.attackable_sprites],self.obstacle_sprites)
 
     def create_attack(self):
-        self.current_attack = Weapon(self.player, [self.visible_sprites],self.obstacle_sprites)
+        self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])  #,self.obstacle_sprites
 
     def create_magic(self, style, strength, cost):
         # self.current_magic = Magic(self.player, self.visible_sprites)
@@ -100,15 +104,28 @@ class Level:
             self.current_attack.kill()
         self.current_attack = None
 
+    def player_attack_logic(self):
+        if self.attack_sprites:
+            for attack_sprite in self.attack_sprites:
+                collision_sprites = pygame.sprite.spritecollide(attack_sprite,self.attackable_sprites,False)
+                if collision_sprites:
+                    for target_sprite in collision_sprites:
+                        if target_sprite.sprite_type == 'grass':
+                            target_sprite.kill()
+                        else:
+                            target_sprite.get_damage(self.player, attack_sprite.sprite_type)
+
     def run(self):
         # отрисовка и обновление игры
         self.visible_sprites.custom_draw(self.player)
         self.visible_sprites.update()
         self.visible_sprites.enemy_update(self.player)
+        self.player_attack_logic()
         self.ui.display(self.player)
 
         # debug(self.player.direction)
         # debug(self.player.status)
+
 
 
 class YSortCameraGroup(pygame.sprite.Group):
