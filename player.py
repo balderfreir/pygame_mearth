@@ -16,11 +16,11 @@ class Player(Entity):
         # graphics setup
         self.import_player_assets()
         self.status = 'down'
-        self.frame_index = 0
-        self.animation_speed = 0.15
+        # self.frame_index = 0         # moved to entity
+        # self.animation_speed = 0.15  # moved to entity
 
         # movement
-        self.direction = pygame.math.Vector2()  # нужно для управления персонажем
+        # self.direction = pygame.math.Vector2()  # нужно для управления персонажем # moved to entity
         # self.speed = 5
         self.attacking = False
         self.attack_cooldown = 400
