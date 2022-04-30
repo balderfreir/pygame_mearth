@@ -30,7 +30,6 @@ class Level:
         # user interface
         self.ui = UI()
 
-
     def create_map(self):  # basic level setup
         layouts = {
             'boundary': import_csv_layout('map/map_FloorBlocks.csv'),
