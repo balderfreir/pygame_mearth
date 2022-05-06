@@ -12,14 +12,22 @@ class Game:
         self.clock = pygame.time.Clock()  # нужен для того, чтобы убедиться, что игра работает с заданной частотой кадров
         self.level = Level()
 
+        # sound
+        main_sound = pygame.mixer.Sound('audio/main.ogg')
+        main_sound.set_volume(0.2)
+        main_sound.play(loops=-1)
+
     def run(self):
         while True:
             for event in pygame.event.get():  # для каждоого события из списка объектов (из списска событий, которые моожет отследить pygame)
                 if event.type == pygame.QUIT:  # проверяем на правдивость условие, то есть является ли событие "выходом из игры"
                     pygame.quit()  # грохает модули pygame что были инициализированы
                     sys.exit()  # грохает интерпретатор
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m:
+                        self.level.toggle_menu()
 
-            self.screen.fill('black')  # заполняем экран черным цветом
+            self.screen.fill(WATER_COLOR)  # заполняем экран цветом воды, дабы не было видно границ
             self.level.run()
             pygame.display.update()  # обновляем экран
             self.clock.tick(FPS)  # контролируем длительность кадра

@@ -11,7 +11,7 @@ class Player(Entity):
         self.image = pygame.image.load('graphics/test/player.png').convert_alpha()
         self.rect = self.image.get_rect(
             topleft=pos)  # создает прямогульник по форме картинки, который используется для колизий
-        self.hitbox = self.rect.inflate(0, -26)  # Возвращает новый прям-ник с размером, измененным на заданное
+        self.hitbox = self.rect.inflate(-10, HITBOX_OFFSET['player'])  # Возвращает новый прям-ник с размером, измененным на заданное
 
         # graphics setup
         self.import_player_assets()
@@ -45,15 +45,22 @@ class Player(Entity):
 
         # stats
         self.stats = {'health': 100, 'energy': 60, 'attack': 10, 'magic': 4, 'speed': 5}
+        self.max_stats = {'health': 300, 'energy': 140, 'attack': 20, 'magic': 10, 'speed': 10}
+        self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic': 100, 'speed': 100}
+
         self.health = self.stats['health'] * 0.6
         self.energy = self.stats['energy'] * 0.6
-        self.exp = 123
+        self.exp = 6000
         self.speed = self.stats['speed']
 
         # damage timer
         self.vulnerable = True
         self.hurt_time = None
         self.invulnerability_duration = 500
+
+        # import a sound
+        self.weapon_attack_sound = pygame.mixer.Sound('audio/sword.wav')
+        self.weapon_attack_sound.set_volume(0.1)
 
     def import_player_assets(self):
         character_path = 'graphics/player/'
@@ -103,11 +110,12 @@ class Player(Entity):
 
             #  attack input
             if keys[pygame.K_SPACE]:
-                self.direction.x = 0  # for stopping when
-                self.direction.y = 0  # in attacking
+                # self.direction.x = 0  # for stopping when
+                # self.direction.y = 0  # in attacking
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()
+                self.weapon_attack_sound.play()
 
             # magic input
             if keys[pygame.K_LCTRL]:
@@ -206,6 +214,12 @@ class Player(Entity):
         magic_damage = magic_data[self.magic]['strength']
         return base_damage + magic_damage
 
+    def get_value_by_index(self, index):
+        return list(self.stats.values())[index]
+
+    def get_cost_by_index(self, index):
+        return list(self.upgrade_cost.values())[index]
+
     def energy_recovery(self):
         if self.energy < self.stats['energy']:
             self.energy += 0.01 * self.stats['magic']
@@ -218,4 +232,4 @@ class Player(Entity):
         self.get_status()
         self.animate()
         self.energy_recovery()
-        self.move(self.speed)
+        self.move(self.stats['speed'])

@@ -10,12 +10,14 @@ from weapon import *
 from enemy import *
 from particles import *
 from magic import *
+from upgrade import Upgrade
 
 
 class Level:
     def __init__(self):
         # получение display surface
         self.display_surface = pygame.display.get_surface()
+        self.game_paused = False
 
         # настройка группы спрайтов (https://habr.com/ru/post/588765/)
         self.visible_sprites = YSortCameraGroup()  # видимые спрайты
@@ -31,6 +33,7 @@ class Level:
 
         # user interface
         self.ui = UI()
+        self.upgrade = Upgrade(self.player)
 
         # particles
         self.animation_player = AnimationPlayer()
@@ -96,7 +99,8 @@ class Level:
                                 Enemy(monster_name, (x, y),
                                       [self.visible_sprites, self.attackable_sprites],
                                       self.obstacle_sprites, self.damage_player,
-                                      self.trigger_death_particles)
+                                      self.trigger_death_particles,
+                                      self.add_exp)
 
     def create_attack(self):
         self.current_attack = Weapon(self.player, [self.visible_sprites, self.attack_sprites])  # ,self.obstacle_sprites
@@ -142,13 +146,22 @@ class Level:
     def trigger_death_particles(self, pos, particle_type):
         self.animation_player.create_particles(particle_type, pos, self.visible_sprites)
 
+    def add_exp(self,amount):
+        self.player.exp += amount
+
+    def toggle_menu(self):
+        self.game_paused = not self.game_paused
     def run(self):
         # отрисовка и обновление игры
         self.visible_sprites.custom_draw(self.player)
-        self.visible_sprites.update()
-        self.visible_sprites.enemy_update(self.player)
-        self.player_attack_logic()
         self.ui.display(self.player)
+
+        if self.game_paused:
+            self.upgrade.display()
+        else:
+            self.visible_sprites.update()
+            self.visible_sprites.enemy_update(self.player)
+            self.player_attack_logic()
 
         # debug(self.player.direction)
         # debug(self.player.status)

@@ -7,6 +7,7 @@ class Tile(pygame.sprite.Sprite):
         super().__init__(groups)
         # self.image = pygame.image.load('graphics/test/rock.png').convert_alpha()
         self.sprite_type = sprite_type
+        y_offset = HITBOX_OFFSET[sprite_type]
         self.image = surface
         if sprite_type == 'object':
             self.rect = self.image.get_rect(topleft=(pos[0], pos[1] - TILESIZE))
@@ -15,4 +16,4 @@ class Tile(pygame.sprite.Sprite):
 
         # self.sprite_type = sprite_type
         # self.rect = self.image.get_rect(topleft=pos)
-        self.hitbox = self.rect.inflate(0,-10)  # делаем хитбокс для overlap меньшего размера чем сами объекты
+        self.hitbox = self.rect.inflate(0,y_offset)  # делаем хитбокс для overlap меньшего размера чем сами объекты
